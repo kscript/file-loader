@@ -1,0 +1,29 @@
+{
+  "name": "ks-file-loader",
+  "version": "1.0.7",
+  "description": "file loader",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kscript/file-loader.git"
+  },
+  "keywords": [
+    "webpack",
+    "file",
+    "loader",
+    "js"
+  ],
+  "bugs": {
+    "url": "https://github.com/kscript/file-loader/issues"
+  },
+  "homepage": "https://github.com/kscript/file-loader#readme",
+  "author": "luren",
+  "license": "MIT",
+  "dependencies": {
+    "fs": "0.0.1-security",
+    "path": "^0.12.7"
+  }
+}
