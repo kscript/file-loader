@@ -1,16 +1,22 @@
 const fs = require("fs");
 const path = require("path");
 function search(filePath, func, complete){
-  let filelists = fs.readdirSync(filePath) || [];
-  let count = filelists.length;
-  filelists.forEach(function (filename) {
-    machining(filePath, filename, func, function(type){
-      count--;
-      count === 0 && complete && complete();
-    });
-  });
-  // 一般没有需要处理的文件的话才会到这里
-  count === 0 && complete && complete();
+  fs.readdir(filePath, function(err, filelists){
+    if(err){
+      throw err;
+    }
+    if (filelists && filelists.length) {
+      let count = filelists.length;
+      filelists.forEach(function (filename) {
+        machining(filePath, filename, func, function(type){
+          count--;
+          count === 0 && complete && complete();
+        });
+      });
+    } else {
+      complete && complete();
+    }
+  })
 }
 /**
  * 对文件和文件夹进行处理
@@ -20,44 +26,50 @@ function search(filePath, func, complete){
  * @param {function} done 处理完毕回调
  */
 function machining(filePath, filename, func, done){
-  let isCallback = false;
   if (!/^(\/|\\)$/.test(filename)) {
     let current = path.join(filePath, filename)
     try {
-      let stats = fs.fstatSync(fs.openSync(current, 'r'))
-      if (stats.isFile()) {
-        isCallback = true;
-        // 文件需要等处理完的回调
-        func({
-          isDir: false,
-          path: current,
-          name: filename
-        }, function(){
-          done('file');
-        });
-      } else if (stats.isDirectory()) {
-        isCallback = true;
-        func({
-          isDir: true,
-          path: current,
-          name: filename
-        }, function(verifyed){
-          if(verifyed){
-            // 文件夹的话, 需要等search的complete回调 冒泡
-            search(current, func, function(){
-              done('dir');
+      fs.open(current, 'r', function(err, file){
+        if(err){
+          throw err;
+        }
+        fs.fstat(file, function(err, stats){
+          if(err){
+            throw err;
+          }
+          if (stats.isFile()) {
+            // 文件需要等处理完的回调
+            func({
+              isDir: false,
+              path: current,
+              name: filename
+            }, function(){
+              done('file');
             });
+          } else if (stats.isDirectory()) {
+            func({
+              isDir: true,
+              path: current,
+              name: filename
+            }, function(verifyed){
+              if(verifyed){
+                // 文件夹的话, 需要等search的complete回调 冒泡
+                search(current, func, function(){
+                  done('dir');
+                });
+              } else {
+                done('dir');
+              }
+            })
           } else {
-            done('dir');
+            done('exclude');
           }
         })
-      }
-    } catch (e) {
-      console.log(e);
+      })
+    } catch (err) {
+      throw err;
     }
   } else {
-  }
-  if(!isCallback){
     done('exclude');
   }
 }
@@ -135,5 +147,5 @@ module.exports = function exec(option){
   }, function(){
     option.done && option.done();
   })
-  return startPath
+  return startPath;
 }
