@@ -1,6 +1,6 @@
 {
   "name": "ks-file-loader",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "file loader",
   "main": "index.js",
   "scripts": {
@@ -23,7 +23,7 @@
   "author": "luren",
   "license": "MIT",
   "dependencies": {
-    "fs": "0.0.1-security",
+    "fs": "^0.0.1-security",
     "path": "^0.12.7"
   }
 }
