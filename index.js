@@ -1,7 +1,7 @@
 const fs = require("fs")
 const path = require("path")
 
-function search(filePath, func, complete) {
+function search(filePath, func, complete, option) {
   fs.readdir(filePath, function (err, filelists) {
     if (err) {
       throw err
@@ -12,7 +12,7 @@ function search(filePath, func, complete) {
         machining(filePath, filename, func, function (type) {
           count--
           count === 0 && complete && complete()
-        })
+        }, option)
       })
     } else {
       complete && complete()
@@ -39,7 +39,7 @@ function Async(func){
  * @param {function} func 处理函数
  * @param {function} done 处理完毕回调
  */
-function machining(filePath, filename, func, done) {
+function machining(filePath, filename, func, done, option) {
   if (!/^(\/|\\)$/.test(filename)) {
     let current = path.join(filePath, filename)
     Async(function(cb){
@@ -64,11 +64,11 @@ function machining(filePath, filename, func, done) {
           path: current,
           name: filename
         }, function (verifyed) {
-          if (verifyed) {
+          if (verifyed || !option.deep) {
             // 文件夹的话, 需要等search的complete回调 冒泡
             search(current, func, function () {
               done('dir')
-            })
+            }, option)
           } else {
             done('dir')
           }
@@ -110,7 +110,7 @@ function verifyDir(include, exclude, name) {
   let isExclude = exclude ? exclude.test(name) : false
 
   // 如果是比较大的文件夹, 必须在 include 的正则表达式里指定, 否则忽略
-  return isBig ? include && isInclude : isInclude && !isExclude
+  return isBig ? include && isInclude : isExclude
 }
 
 /**
@@ -160,5 +160,6 @@ module.exports = function exec(option) {
     }
   }, function () {
     option.done && option.done()
-  })
+  },
+  option)
 }
