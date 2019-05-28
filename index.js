@@ -50,25 +50,27 @@ class Loader {
             if (stats.isFile()) {
               if (this.verifyExt(current, option.ext)) {
                 // 文件需要等处理完的回调
-                return this.loaderHandler({
-                  isDir: false,
+                return this.loaderHandler(Object.assign({}, stats, {
+                  type: 'file',
                   path: current,
                   name: filename
-                }, () => {
+                }), () => {
                   resolve('file')
                 })
               }
             } else if (stats.isDirectory()) {
               if (this.verifyDir(option.include, option.exclude, current)) {
-                return this.loaderHandler({
-                  isDir: true,
+                return this.loaderHandler(Object.assign({}, stats, {
+                  type: 'dir',
                   path: current,
                   name: filename
-                }, () => {
+                }), () => {
                   if (option.deep) {
                     // 遍历子文件夹
                     this.search(current).then(() => {
                       resolve('dir')
+                    }).catch(err => {
+                      reject(err)
                     })
                   } else {
                     resolve('dir')
@@ -78,8 +80,8 @@ class Loader {
             }
             resolve('exclude')
           })
-          .catch(e => {
-            reject(e)
+          .catch(err => {
+            reject(err)
           })
       } else {
         resolve('exclude')
@@ -150,5 +152,7 @@ module.exports = (option = {}) => {
   let loader = new Loader(Object.assign({}, option))
   loader.search(loader.option.path).then(() => {
     typeof loader.option.done === 'function' && loader.option.done()
+  }).catch(err => {
+    typeof loader.option.error === 'function' && loader.option.error(err)
   })
 }
