@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2015",
+    "outDir": "src",
+    "lib": [
+      "es6"
+    ],
+    "sourceMap": true,
+    "rootDir": "."
+  },
+  "paths": {
+    "*": [
+      "*"
+    ],
+    "@/*": [
+      "src/*"
+    ]
+  },
+  "include": [
+    "/**/*.ts",
+    "types/**/*.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue", 
+    "types/index.d.ts",
+  ],
+  "exclude": [
+    "node_modules",
+    ".vscode"
+  ]
+}

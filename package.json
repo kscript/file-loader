@@ -1,10 +1,10 @@
 {
   "name": "ks-file-loader",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "file loader",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prepublishOnly": "rollup -c -i ./src/index.ts -o index.js"
   },
   "repository": {
     "type": "git",
@@ -20,10 +20,17 @@
     "url": "https://github.com/kscript/file-loader/issues"
   },
   "homepage": "https://github.com/kscript/file-loader#readme",
-  "author": "luren",
+  "author": "kscript",
   "license": "MIT",
   "dependencies": {
-    "fs": "^0.0.1-security",
+    "fs": "0.0.1-security",
     "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "@types/node": "^12.0.10",
+    "rollup": "^1.16.4",
+    "rollup-plugin-typescript": "^1.0.1",
+    "tslib": "^1.10.0",
+    "typescript": "^3.5.2"
   }
 }

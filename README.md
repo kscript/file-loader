@@ -8,16 +8,17 @@
 
 #### Api
 
-| 属性 | 类型 | 必要性 | 说明 |
+| 属性 | 类型 | 默认值 | 说明 |
 |--|--|--|--|
-| path | string | * | 要处理目录(相对于项目目录, 而非文件所在目录) |
-| ext | string / RegExp | * | 要处理文件类型 |
+| path | string | './' | 要处理目录(相对于项目目录, 而非文件所在目录) |
+| ext | string / RegExp | '' | 要处理文件类型 |
 | exclude | string / RegExp | - | 排除路径. 没有被排除的文件才会被加载 |
 | include | string / RegExp | - | 包含路径. 默认排除 node_modules 这样的大文件夹, 如果要加载, 须在include中指定 |
-| deep | boolean | - | 是否深层遍历 |
-| readFile | boolean | - | 是否读取文件内容 |
+| deep | boolean | false | 是否深层遍历 |
+| readFile | boolean | false | 是否读取文件内容 |
+| error | function | - | 处理出错时的回调. |
 | done | function | - | 处理完毕时的回调. 参数( - ) |
-| loader | function | - | 加载器. 参数( stats: 文件信息 data: 文件内容 next: 处理完成时的回调 ) |
+| loader | function | - | 加载器. 参数( stats: 文件信息 data: 文件内容 next: 处理完成时要执行的回调 ) |
 
 #### 如何使用?
 
