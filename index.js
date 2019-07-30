@@ -115,25 +115,54 @@ var Loader = /** @class */ (function () {
      * @param {function} error 出错时回调
      */
     Loader.prototype.loaderHandler = function (stats, done, error) {
+        var _this = this;
         var option = this.option;
         var loader = option.loader;
         error = error || option.error;
         if (typeof loader === 'function') {
             if (stats.isDir || stats.type === 'dir') {
-                !option.ext || option.showDir ? loader(stats, '', done) : done();
+                if (!option.ext || option.showDir) {
+                    this.execLoader(loader, done, stats, '');
+                }
+                else {
+                    done();
+                }
             }
             else if (option.readFile) {
                 fs.readFile(stats.path, 'utf8', function (err, data) {
-                    err ? error && done(error(err, stats)) : loader(stats, data, done);
+                    if (err) {
+                        error && done(error(err, stats));
+                    }
+                    else {
+                        _this.execLoader(loader, done, stats, data);
+                    }
                 });
             }
             else {
-                loader(stats, '', done);
+                this.execLoader(loader, done, stats, '');
             }
         }
         else {
             done();
         }
+    };
+    Loader.prototype.execLoader = function (loader, done) {
+        var rest = [];
+        for (var _i = 2; _i < arguments.length; _i++) {
+            rest[_i - 2] = arguments[_i];
+        }
+        var result = loader.apply(void 0, rest.concat([done]));
+        if (result instanceof Promise) {
+            result.then(function () {
+                done();
+            }).catch(function () {
+                done();
+            });
+        }
+        else if (result !== false) {
+            done();
+        }
+        // 其它返回值需要用户手动调用 回调函数
     };
     /**
      * 对文件夹进行验证

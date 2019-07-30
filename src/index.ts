@@ -1,5 +1,5 @@
 import { Option } from '../'
-import Loader from './loader';
+import Loader from './loader'
 export const fileLoader = (option: Option = {
   path: './',
   ext: '',
@@ -11,7 +11,7 @@ export const fileLoader = (option: Option = {
   return loader.search(loader.option.path).then(() => {
     typeof loader.option.done === 'function' && loader.option.done()
   }).catch(err => {
-    typeof loader.option.error === 'function' && loader.option.error(err);
+    typeof loader.option.error === 'function' && loader.option.error(err)
   })
 }
 

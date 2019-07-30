@@ -1,6 +1,6 @@
 import { Option } from '../'
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'fs'
+import * as path from 'path'
 
 const cb2promise = (callback: Function): Promise<any> => {
   return new Promise((resolve, reject) => {
@@ -11,7 +11,7 @@ const cb2promise = (callback: Function): Promise<any> => {
 }
 
 export class Loader {
-  public option: Option = {};
+  public option: Option = {}
   constructor(option: Option) {
     this.option = option
   }
@@ -26,13 +26,13 @@ export class Loader {
           })
         )
       } else {
-        let queue: Promise<any> = Promise.resolve();
+        let queue: Promise<any> = Promise.resolve()
         filelists.forEach(filename => {
           queue = queue.then(() => {
             return this.machining(filePath, filename)
           })
         })
-        return queue;
+        return queue
       }
     })
   }
@@ -111,20 +111,41 @@ export class Loader {
   loaderHandler(stats: any, done: Function, error?: (error: Error, stats: Object) => void) {
     const option: Option = this.option
     const loader = option.loader
-    error = error || option.error;
+    error = error || option.error
     if (typeof loader === 'function') {
       if (stats.isDir || stats.type === 'dir') {
-        !option.ext || option.showDir ? loader(stats, '', done) : done()
+        if (!option.ext || option.showDir) {
+          this.execLoader(loader, done, stats, '')
+        } else {
+          done()
+        }
       } else if (option.readFile) {
         fs.readFile(stats.path, 'utf8', (err, data) => {
-          err ? error && done(error(err, stats)) : loader(stats, data, done)
+          if (err) {
+            error && done(error(err, stats))
+          } else {
+            this.execLoader(loader, done, stats, data)
+          }
         })
       } else {
-        loader(stats, '', done)
+        this.execLoader(loader, done, stats, '')
       }
     } else {
       done()
     }
+  }
+  execLoader(loader, done, ...rest) {
+    let result: Promise<any> | any = loader(...rest, done)
+    if (result instanceof Promise) {
+      result.then(() => {
+        done()
+      }).catch(() => {
+        done()
+      })
+    } else if (result !== false) {
+      done()
+    }
+    // 其它返回值需要用户手动调用 回调函数
   }
   /**
    * 对文件夹进行验证
@@ -149,9 +170,9 @@ export class Loader {
     let info = path.parse(filepath)
     let iext = info.ext ? info.ext.slice(1) : ''
     if (name === void 0 || typeof name === 'string' && ~info.name.indexOf(name) || name instanceof RegExp && name.test(info.name)) {
-      return ext === void 0 || typeof ext === 'string' && ext === iext || ext instanceof RegExp && ext.test(iext);
+      return ext === void 0 || typeof ext === 'string' && ext === iext || ext instanceof RegExp && ext.test(iext)
     }
-    return false;
+    return false
   }
 }
 export default Loader
