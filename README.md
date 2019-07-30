@@ -24,10 +24,10 @@
 | loader | function | - | 加载器. 参数( stats: 文件信息 data: 文件内容 done: 处理完成时要执行的回调) |
 
 > loader函数有异步操作时, 有两种方式: 1、回调函数 2、Promise(推荐).  
-> 当执行loader函数后, 返回值
-> 为 Promise 时, loader会先等待Promise执行完毕
-> 为 false 时, 等待用户手动调用 done
-> 为其它值时, 则继续执行
+> 当执行loader函数后, 返回值  
+> 为 Promise 时, loader会先等待Promise执行完毕  
+> 为 false 时, 等待用户手动调用 done  
+> 为其它值时, 则继续执行  
 #### 如何使用?
 
 案例: 用 hexo 生成的博客, 在源码中有大量的空行, 使用
