@@ -22,9 +22,20 @@ var Loader = /** @class */ (function () {
         return cb2promise(function (cb) {
             fs.readdir(filePath, cb);
         }).then(function (filelists) {
-            return Promise.all(filelists.map(function (filename) {
-                return _this.machining(filePath, filename);
-            }));
+            if (_this.option.mode === 'BFS' || _this.option.deep === false) {
+                return Promise.all(filelists.map(function (filename) {
+                    return _this.machining(filePath, filename);
+                }));
+            }
+            else {
+                var queue_1 = Promise.resolve();
+                filelists.forEach(function (filename) {
+                    queue_1 = queue_1.then(function () {
+                        return _this.machining(filePath, filename);
+                    });
+                });
+                return queue_1;
+            }
         });
     };
     Loader.prototype.getStats = function (filePath) {
@@ -158,6 +169,7 @@ var fileLoader = function (option) {
     if (option === void 0) { option = {
         path: './',
         ext: '',
+        mode: 'BFS',
         deep: false,
         readFile: false
     }; }

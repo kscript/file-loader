@@ -19,11 +19,21 @@ export class Loader {
     return cb2promise((cb) => {
       fs.readdir(filePath, cb)
     }).then((filelists: any[]) => {
-      return Promise.all(
-        filelists.map(filename => {
-          return this.machining(filePath, filename)
+      if (this.option.mode === 'BFS' || this.option.deep === false) {
+        return Promise.all(
+          filelists.map(filename => {
+            return this.machining(filePath, filename)
+          })
+        )
+      } else {
+        let queue: Promise<any> = Promise.resolve();
+        filelists.forEach(filename => {
+          queue = queue.then(() => {
+            return this.machining(filePath, filename)
+          })
         })
-      )
+        return queue;
+      }
     })
   }
   getStats(filePath: string) {

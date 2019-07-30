@@ -3,6 +3,7 @@ import Loader from './loader';
 export const fileLoader = (option: Option = {
   path: './',
   ext: '',
+  mode: 'BFS',
   deep: false,
   readFile: false
 }) => {

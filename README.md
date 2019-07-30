@@ -11,7 +11,9 @@
 | 属性 | 类型 | 默认值 | 说明 |
 |--|--|--|--|
 | path | string | './' | 要处理目录(相对于项目目录, 而非文件所在目录) |
+| name | string / RegExp | '' | 要处理文件名 |
 | ext | string / RegExp | '' | 要处理文件类型 |
+| mode | string | 'BFS' | 遍历模式: 深度优先(DFS)/广度优先(BFS) |
 | exclude | string / RegExp | - | 排除路径. 没有被排除的文件才会被加载 |
 | include | string / RegExp | - | 包含路径. 默认排除 node_modules 这样的大文件夹, 如果要加载, 须在include中指定 |
 | deep | boolean | false | 是否深层遍历 |
