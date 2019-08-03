@@ -23,9 +23,17 @@ var Loader = /** @class */ (function () {
             fs.readdir(filePath, cb);
         }).then(function (filelists) {
             if (_this.option.mode === 'BFS' || _this.option.deep === false) {
-                return Promise.all(filelists.map(function (filename) {
-                    return _this.machining(filePath, filename);
+                var queue = Promise.all(filelists.map(function (filename) {
+                    return _this.machining(filePath, filename, false).then(function (type) {
+                        return type === 'dir' ? path.join(filePath, filename) : '';
+                    });
                 }));
+                return _this.option.deep ? queue.then(function (rest) {
+                    var dirs = rest.filter(function (filePath) { return !!filePath; });
+                    return Promise.all(dirs.map(function (item) {
+                        return _this.search(item);
+                    }));
+                }) : queue;
             }
             else {
                 var queue_1 = Promise.resolve();
@@ -54,9 +62,11 @@ var Loader = /** @class */ (function () {
      * 对文件和文件夹进行处理
      * @param {string} filePath 目录
      * @param {string} filename 文件名
+     * @param {boolean} deep 是否深度遍历
      */
-    Loader.prototype.machining = function (filePath, filename) {
+    Loader.prototype.machining = function (filePath, filename, deep) {
         var _this = this;
+        if (deep === void 0) { deep = this.option.deep; }
         var option = this.option;
         return new Promise(function (resolve, reject) {
             if (!/^(\/|\\)$/.test(filename)) {
@@ -82,7 +92,7 @@ var Loader = /** @class */ (function () {
                                 path: current_1,
                                 name: filename
                             }), function () {
-                                if (option.deep) {
+                                if (deep) {
                                     // 遍历子文件夹
                                     _this.search(current_1).then(function () {
                                         resolve('dir');

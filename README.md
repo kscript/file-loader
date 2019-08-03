@@ -45,12 +45,18 @@ fileLoader({
   // 文件扩展名, 支持正则
   ext: 'html',
 
+  // 文件名, 支持正则
+  // name: '',
+
   // 包含目录
   // 默认会排除 node_modules 这样的大文件夹, 如果要加载, 必须在include中指定
   // include: /2018/,
 
   // 排除目录
   exclude: /lib/,
+
+  // 遍历模式: 广度优先(BFS) / 深度优先(DFS)
+  mode: 'DFS',
 
   // 是否深层遍历
   deep: true,
@@ -61,7 +67,8 @@ fileLoader({
    * 加载器
    * @param {object} stats 文件信息
    * @param {string} data 文件内容 readFile 为 false 时返回空字符串
-   * @param {function} done 文件处理完毕的回调 (必要的)
+   * @param {function} done 文件处理完毕的回调
+   * @return {Promise|false|any} Promise: 使用Promise处理异步  false: 使用回调函数处理异步(处理完需手动调用done) 其它值: 默认为同步
    */
   loader: function(stats, data, done){
     
@@ -69,6 +76,7 @@ fileLoader({
     // 替换多余的空行
     var content = data.replace(/\n(\s+)\n+/g, '\n');
 
+    // Promise方式处理异步操作
     return Promise(function (resolve, reject) {
       fs.writeFile(stats.path, content, function(error){
         if(error){
@@ -87,6 +95,7 @@ fileLoader({
       }
       done();
     });
+    // 返回值必须全等于false
     return false;
   },
   // 转换完毕

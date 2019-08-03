@@ -1,7 +1,9 @@
-import { Option } from '../'
+import { Option } from '..'
 import * as fs from 'fs'
 import * as path from 'path'
-
+interface anyObject {
+  [prop: string]: any;
+}
 const cb2promise = (callback: Function): Promise<any> => {
   return new Promise((resolve, reject) => {
     callback((err: Error, data: any) => {
@@ -20,11 +22,20 @@ export class Loader {
       fs.readdir(filePath, cb)
     }).then((filelists: any[]) => {
       if (this.option.mode === 'BFS' || this.option.deep === false) {
-        return Promise.all(
+        let queue: Promise<string[]> = Promise.all(
           filelists.map(filename => {
-            return this.machining(filePath, filename)
+            return this.machining(filePath, filename, false).then((type: string) => {
+              return type === 'dir' ? path.join(filePath, filename) : ''
+            })
           })
         )
+        return this.option.deep ? queue.then((rest: string[]) => {
+          let dirs = rest.filter(filePath => !!filePath)
+          return Promise.all(dirs.map((item: string) => {
+              return this.search(item)
+            })
+          )
+        }) : queue
       } else {
         let queue: Promise<any> = Promise.resolve()
         filelists.forEach(filename => {
@@ -36,7 +47,7 @@ export class Loader {
       }
     })
   }
-  getStats(filePath: string) {
+  getStats(filePath: string): Promise<fs.Stats> {
     return cb2promise(cb => {
       // 打开文件/文件夹
       fs.open(filePath, 'r', cb)
@@ -52,8 +63,9 @@ export class Loader {
    * 对文件和文件夹进行处理
    * @param {string} filePath 目录
    * @param {string} filename 文件名
+   * @param {boolean} deep 是否深度遍历
    */
-  machining(filePath: string, filename: string) {
+  machining(filePath: string, filename: string, deep: boolean = this.option.deep): Promise<string> {
     const option: Option = this.option
     return new Promise((resolve, reject) => {
       if (!/^(\/|\\)$/.test(filename)) {
@@ -78,7 +90,7 @@ export class Loader {
                   path: current,
                   name: filename
                 }), () => {
-                  if (option.deep) {
+                  if (deep) {
                     // 遍历子文件夹
                     this.search(current).then(() => {
                       resolve('dir')
@@ -108,7 +120,7 @@ export class Loader {
    * @param {function} done 处理完毕回调
    * @param {function} error 出错时回调
    */
-  loaderHandler(stats: any, done: Function, error?: (error: Error, stats: Object) => void) {
+  loaderHandler(stats: any, done: Function, error?: (error: Error, stats: Object) => void): void {
     const option: Option = this.option
     const loader = option.loader
     error = error || option.error
@@ -134,8 +146,8 @@ export class Loader {
       done()
     }
   }
-  execLoader(loader, done, ...rest) {
-    let result: Promise<any> | any = loader(...rest, done)
+  execLoader(loader, done, ...rest): void {
+    let result: Promise<any> | false | any = loader(...rest, done)
     if (result instanceof Promise) {
       result.then(() => {
         done()
@@ -153,7 +165,7 @@ export class Loader {
    * @param {string|RegExp} loader 排除的字符
    * @param {string} name 文件夹名
    */
-  verifyDir(include: string | RegExp, exclude: string | RegExp, name) {
+  verifyDir(include: string | RegExp, exclude: string | RegExp, name): boolean {
     let isBig = /^(node_modules)$/.test(name)
     let isInclude = include instanceof RegExp ? include.test(name) : true
     let isExclude = exclude instanceof RegExp ? exclude.test(name) : false
@@ -166,7 +178,7 @@ export class Loader {
    * @param {string} filepath 文件路径
    * @param {string|RegExp} ext 扩展名
    */
-  verifyFile(filepath: string, ext: Option['ext'], name: Option['name']) {
+  verifyFile(filepath: string, ext: Option['ext'], name: Option['name']): boolean {
     let info = path.parse(filepath)
     let iext = info.ext ? info.ext.slice(1) : ''
     if (name === void 0 || typeof name === 'string' && ~info.name.indexOf(name) || name instanceof RegExp && name.test(info.name)) {
