@@ -1,18 +1,26 @@
+import { Stats } from "fs";
+type stats = Stats & {
+  [prop: string]: any
+};
+
+type output = (stats: stats, data: string, done:() => void) => string | void;
+
 export interface Option {
   path?: string;
-  ext?: string | RegExp,
-  name?: string | RegExp,
-  mode?: string,
+  name?: string | RegExp;
+  fullName?: string | RegExp; 
+  ext?: string | RegExp;
+  mode?: string;
   deep?: boolean;
   showDir?: boolean;
   readFile?: boolean;
   include?: string | RegExp;
   exclude?: string | RegExp;
+  output?: string | output;
+  outputDir?: string;
   done?: () => void;
   error?: (error: Error) => void;
-  loader?: (stats: {
-    [prop: string]: any
-  }, data: any, next: Function) => void;
+  loader?: (stats: stats, data: any, next: Function) => void;
 }
 /**
  * 文件加载器
@@ -31,19 +39,20 @@ export interface Option {
  */
 export declare function fileLoader(option: {
   path?: string;
-  name?: string | RegExp,
-  ext?: string | RegExp,
-  mode?: string,
+  name?: string | RegExp;
+  fullName?: string | RegExp; 
+  ext?: string | RegExp;
+  mode?: string;
   deep?: boolean;
   showDir?: boolean;
   readFile?: boolean;
   include?: string | RegExp;
   exclude?: string | RegExp;
+  output?: string | output;
+  outputDir?: string;
   done?: () => void;
   error?: (error: Error) => void;
-  loader?: (stats: {
-    [prop: string]: any
-  }, data: any, next: Function) => void;
+  loader?: (stats: stats, data: any, next: Function) => void;
 }): Promise<any>;
 
 export default fileLoader;
