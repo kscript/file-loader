@@ -1,6 +1,6 @@
 {
   "name": "ks-file-loader",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "file loader",
   "main": "index.js",
   "scripts": {
@@ -24,12 +24,12 @@
   "author": "kscript",
   "license": "MIT",
   "dependencies": {
+    "hash-file": "^3.0.0",
     "fs": "0.0.1-security",
     "path": "^0.12.7"
   },
   "devDependencies": {
     "@types/node": "^12.0.10",
-    "hash-file": "^3.0.0",
     "rollup": "^1.16.4",
     "rollup-plugin-typescript": "^1.0.1",
     "tslib": "^1.10.0",
