@@ -1,11 +1,11 @@
 {
   "name": "ks-file-loader",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "file loader",
-  "main": "index.js",
+  "main": "./dist/index.js",
   "scripts": {
     "test": "rollup -c -i test/index.ts -o test/index.js && node ./test",
-    "prepublishOnly": "rollup -c -i ./src/index.ts -o index.js"
+    "prepublishOnly": "rollup -c -i ./src/index.ts -o ./dist/index.js"
   },
   "repository": {
     "type": "git",
