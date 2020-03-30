@@ -1,6 +1,6 @@
 {
   "name": "ks-file-loader",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "file loader",
   "main": "index.js",
   "scripts": {

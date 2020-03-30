@@ -18,6 +18,7 @@
 | exclude | string / RegExp | - | 排除路径. 没有被排除的文件才会被加载 |
 | include | string / RegExp | - | 包含路径. 默认排除 node_modules 这样的大文件夹, 如果要加载, 须在include中指定 |
 | deep | boolean | false | 是否深层遍历 |
+| async | boolean | false | 当不深层遍历时, 是否异步加载 (异步时使用Promise.all加载, 不采用异步可以保持顺序) |
 | showDir | boolean | false | 文件夹是否经过loader |
 | readFile | boolean | false | 是否读取文件内容 |
 | output | string / Function | - | 输出文件名 |

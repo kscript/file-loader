@@ -21,13 +21,32 @@ export class Loader {
       fs.readdir(filePath, cb)
     }).then((filelists: any[]) => {
       if (this.option.mode === 'BFS' || this.option.deep === false) {
-        let queue: Promise<string[]> = Promise.all(
-          filelists.map(filename => {
-            return this.machining(filePath, filename, false).then((type: string) => {
-              return type === 'dir' ? path.join(filePath, filename) : ''
+        let queue
+        if (this.option.async) {
+          queue = Promise.all(
+            filelists.map(filename => {
+              return this.machining(filePath, filename, false).then((type: string) => {
+                return type === 'dir' ? path.join(filePath, filename) : ''
+              })
+            })
+          )
+        } else {
+          queue = new Promise((resolve) => {
+            let rest: string[] = []
+            let current = Promise.resolve()
+            filelists.forEach(filename => {
+              current = current.then(() => {
+                return this.machining(filePath, filename, false).then((type: string) => {
+                  rest.push(type === 'dir' ? path.join(filePath, filename) : '')
+                  return type === 'dir' ? path.join(filePath, filename) : ''
+                })
+              })
+            })
+            current.then(() => {
+              resolve(rest)
             })
           })
-        )
+        }
         return this.option.deep ? queue.then((rest: string[]) => {
           let dirs = rest.filter(filePath => !!filePath)
           return Promise.all(dirs.map((item: string) => {

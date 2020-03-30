@@ -76,11 +76,31 @@ var Loader = /** @class */ (function () {
             fs.readdir(filePath, cb);
         }).then(function (filelists) {
             if (_this.option.mode === 'BFS' || _this.option.deep === false) {
-                var queue = Promise.all(filelists.map(function (filename) {
-                    return _this.machining(filePath, filename, false).then(function (type) {
-                        return type === 'dir' ? path.join(filePath, filename) : '';
+                var queue = void 0;
+                if (_this.option.async) {
+                    queue = Promise.all(filelists.map(function (filename) {
+                        return _this.machining(filePath, filename, false).then(function (type) {
+                            return type === 'dir' ? path.join(filePath, filename) : '';
+                        });
+                    }));
+                }
+                else {
+                    queue = new Promise(function (resolve) {
+                        var rest = [];
+                        var current = Promise.resolve();
+                        filelists.forEach(function (filename) {
+                            current = current.then(function () {
+                                return _this.machining(filePath, filename, false).then(function (type) {
+                                    rest.push(type === 'dir' ? path.join(filePath, filename) : '');
+                                    return type === 'dir' ? path.join(filePath, filename) : '';
+                                });
+                            });
+                        });
+                        current.then(function () {
+                            resolve(rest);
+                        });
                     });
-                }));
+                }
                 return _this.option.deep ? queue.then(function (rest) {
                     var dirs = rest.filter(function (filePath) { return !!filePath; });
                     return Promise.all(dirs.map(function (item) {
